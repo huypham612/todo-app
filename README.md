@@ -1,6 +1,6 @@
-# Clean TODO List
+# Focus7 - Minimal TODO App
 
-A minimal TODO app with a 7 task limit for maximum focus. Single HTML file, no dependencies.
+A research-backed TODO app with a 7-task limit for maximum focus. Installable Progressive Web App, single HTML file, no dependencies.
 
 **Live Demo**: https://huypham612.github.io/todo-app/
 
@@ -11,10 +11,18 @@ A minimal TODO app with a 7 task limit for maximum focus. Single HTML file, no d
 - Data saved locally in your browser
 - Works offline
 - Auto system theme
+- Installable as a native app on phones and computers
 
 ## Why 7 Tasks?
 
 Research-backed limit based on Miller's Rule - people can effectively focus on 7±2 items. This forces prioritization and prevents overwhelm, leading to higher completion rates.
+
+## Install as App
+
+- **Mobile**: Visit the link and tap "Add to Home Screen"
+- **Desktop**: Look for the install button in your browser
+- **Chrome/Edge**: Install button appears in the address bar
+- Works like a native app once installed
 
 ## Deploy
 
