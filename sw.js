@@ -1,8 +1,13 @@
-const CACHE_NAME = 'focus7-v1';
+const CACHE_NAME = 'focus7-v2-pomodoro';
 const urlsToCache = [
   './',
   './index.html',
-  './manifest.json'
+  './manifest.json',
+  './icon-16.png',
+  './icon-32.png',
+  './icon-180.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install Service Worker
