@@ -10,8 +10,11 @@
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="Focus on what matters with a 7-task limit. Research-backed minimal TODO app.">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" media="(prefers-color-scheme: light)">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-title" content="Focus7">
     
     <!-- Favicons -->
@@ -418,7 +421,6 @@
         </div>
 
         <div id="completedSection" class="completed-section" style="display: none;">
-            <h2 class="section-title">Completed • Auto-expires in 3 days</h2>
             <div id="completedTasks"></div>
         </div>
 
@@ -690,7 +692,7 @@
         let pomoTimer;
 
         // CRITICAL: Register Service Worker FIRST
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
             navigator.serviceWorker.register('./sw.js')
                 .then(registration => {
                     console.log('✅ Focus7 PWA registered successfully');
@@ -698,6 +700,8 @@
                 .catch(error => {
                     console.log('❌ Focus7 PWA registration failed:', error);
                 });
+        } else if (location.protocol === 'file:') {
+            console.log('ℹ️ Service Worker disabled for file:// protocol');
         }
 
         // PWA Install prompt handling
@@ -889,11 +893,36 @@
             await cleanupExpiredTasks();
         }, 60 * 60 * 1000);
         
+        // Update theme color and status bar for system theme changes
+        function updateThemeColor() {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            // Update theme-color meta tags
+            const lightThemeMeta = document.querySelector('meta[name="theme-color"][media*="light"]');
+            const darkThemeMeta = document.querySelector('meta[name="theme-color"][media*="dark"]');
+            
+            if (lightThemeMeta) lightThemeMeta.setAttribute('content', '#ffffff');
+            if (darkThemeMeta) darkThemeMeta.setAttribute('content', '#111827');
+            
+            // Update Apple status bar style
+            const lightStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"][media*="light"]');
+            const darkStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"][media*="dark"]');
+            
+            if (lightStatusMeta) lightStatusMeta.setAttribute('content', 'default');
+            if (darkStatusMeta) darkStatusMeta.setAttribute('content', 'black-translucent');
+        }
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
+        
         // Initialize app
         loadTasks();
         
         // Initialize Pomodoro timer
         pomoTimer = new MinimalPomodoroTimer();
+        
+        // Set initial theme color
+        updateThemeColor();
     </script>
 </body>
 </html>
