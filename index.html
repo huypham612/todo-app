@@ -83,11 +83,43 @@
             background-color: #f9fafb;
             border-radius: 0.5rem;
             margin-bottom: 0.75rem;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
+            cursor: grab;
+            user-select: none;
         }
 
         .task-item:hover {
             background-color: #f3f4f6;
+        }
+
+        .task-item.dragging {
+            opacity: 0.8;
+            transform: scale(1.05) rotate(2deg);
+            z-index: 1000;
+            cursor: grabbing;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 2px solid #3b82f6;
+            background-color: #eff6ff !important;
+        }
+
+        .task-item.drag-over {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            border: 2px dashed #3b82f6;
+            background-color: #dbeafe !important;
+        }
+
+        .drag-placeholder {
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 2px;
+            margin: 0.5rem 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
         }
 
         @media (prefers-color-scheme: dark) {
@@ -97,6 +129,22 @@
             
             .task-item:hover {
                 background-color: #374151;
+            }
+
+            .task-item.dragging {
+                background-color: #1e3a8a !important;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                border-color: #60a5fa;
+            }
+
+            .task-item.drag-over {
+                box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+                background-color: #1e40af !important;
+                border-color: #60a5fa;
+            }
+
+            .drag-placeholder {
+                background-color: #60a5fa;
             }
         }
 
@@ -163,6 +211,7 @@
             border-radius: 0.5rem;
             margin-bottom: 0.5rem;
             transition: background-color 0.2s;
+            cursor: default;
         }
 
         .task-item.completed-task:hover {
@@ -237,10 +286,12 @@
     </div>
 
     <script>
-        var tasks = [];
+        let tasks = [];
+        let draggedTask = null;
+        let draggedElement = null;
 
         function loadTasks() {
-            var savedTasks = localStorage.getItem('todoTasks');
+            const savedTasks = localStorage.getItem('todoTasks');
             if (savedTasks) {
                 tasks = JSON.parse(savedTasks);
                 cleanupExpiredTasks();
@@ -253,25 +304,23 @@
         }
 
         function cleanupExpiredTasks() {
-            var threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
-            tasks = tasks.filter(function(task) {
-                return !task.completed || !task.completedAt || task.completedAt > threeDaysAgo;
-            });
+            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+            tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > threeDaysAgo);
             saveTasks();
         }
 
         function formatTimeAgo(timestamp) {
-            var now = Date.now();
-            var diffHours = Math.floor((now - timestamp) / (60 * 60 * 1000));
+            const now = Date.now();
+            const diffHours = Math.floor((now - timestamp) / (60 * 60 * 1000));
             if (diffHours < 1) return 'just now';
-            if (diffHours < 24) return diffHours + 'h ago';
-            var diffDays = Math.floor(diffHours / 24);
-            return diffDays + 'd ago';
+            if (diffHours < 24) return `${diffHours}h ago`;
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays}d ago`;
         }
 
         function addTask() {
-            var input = document.getElementById('taskInput');
-            var text = input.value.trim();
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
             
             if (text) {
                 tasks.push({
@@ -287,11 +336,10 @@
         }
 
         function toggleTask(id) {
-            tasks = tasks.map(function(task) {
+            tasks = tasks.map(task => {
                 if (task.id === id) {
                     return {
-                        id: task.id,
-                        text: task.text,
+                        ...task,
                         completed: !task.completed,
                         completedAt: !task.completed ? Date.now() : null
                     };
@@ -302,72 +350,171 @@
             renderTasks();
         }
 
-        function renderTasks() {
-            var activeTasks = tasks.filter(function(task) {
-                return !task.completed;
-            });
-            var completedTasks = tasks.filter(function(task) {
-                return task.completed;
-            }).sort(function(a, b) {
-                return (b.completedAt || 0) - (a.completedAt || 0);
-            });
-
-            renderActiveSection(activeTasks);
-            renderCompletedSection(completedTasks);
+        function reorderTasks(fromIndex, toIndex) {
+            const activeTasks = tasks.filter(task => !task.completed);
             
-            var emptyState = document.getElementById('emptyState');
-            emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
+            if (fromIndex < 0 || fromIndex >= activeTasks.length || 
+                toIndex < 0 || toIndex >= activeTasks.length) {
+                return;
+            }
+
+            const taskToMove = activeTasks.splice(fromIndex, 1)[0];
+            activeTasks.splice(toIndex, 0, taskToMove);
+
+            const completedTasks = tasks.filter(task => task.completed);
+            tasks = activeTasks.concat(completedTasks);
+            saveTasks();
+            renderTasks();
         }
 
-        function renderActiveSection(activeTasks) {
-            var container = document.getElementById('activeTasks');
-            container.innerHTML = '';
+        function handleDragStart(e, task, element) {
+            draggedTask = task;
+            draggedElement = element;
+            element.classList.add('dragging');
+            e.preventDefault();
+        }
 
-            for (var i = 0; i < activeTasks.length; i++) {
-                var taskEl = createTaskElement(activeTasks[i], false);
-                container.appendChild(taskEl);
+        function handleDragEnd() {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                
+                // Remove all drag indicators
+                document.querySelectorAll('.task-item').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                
+                // Remove any placeholder
+                const placeholder = document.querySelector('.drag-placeholder');
+                if (placeholder) {
+                    placeholder.remove();
+                }
+            }
+            draggedTask = null;
+            draggedElement = null;
+        }
+
+        function showDropIndicator(targetElement, position = 'before') {
+            // Remove existing placeholder
+            const existingPlaceholder = document.querySelector('.drag-placeholder');
+            if (existingPlaceholder) {
+                existingPlaceholder.remove();
+            }
+            
+            // Create new placeholder
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+            
+            if (position === 'before') {
+                targetElement.parentNode.insertBefore(placeholder, targetElement);
+            } else {
+                targetElement.parentNode.insertBefore(placeholder, targetElement.nextSibling);
             }
         }
 
-        function renderCompletedSection(completedTasks) {
-            var section = document.getElementById('completedSection');
-            var container = document.getElementById('completedTasks');
-            
-            if (completedTasks.length > 0) {
-                section.style.display = 'block';
-                container.innerHTML = '';
-                
-                for (var i = 0; i < completedTasks.length; i++) {
-                    var taskEl = createTaskElement(completedTasks[i], true);
-                    container.appendChild(taskEl);
+        function handleDrop(e, targetTask) {
+            if (!draggedTask || draggedTask.id === targetTask.id) {
+                return;
+            }
+
+            const activeTasks = tasks.filter(task => !task.completed);
+            const fromIndex = activeTasks.findIndex(task => task.id === draggedTask.id);
+            let toIndex = activeTasks.findIndex(task => task.id === targetTask.id);
+
+            // Determine if we should drop before or after based on mouse/touch position
+            if (e.clientY || e.touches) {
+                const targetElement = e.target.closest('.task-item');
+                if (targetElement) {
+                    const rect = targetElement.getBoundingClientRect();
+                    const mouseY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+                    const middle = rect.top + rect.height / 2;
+                    
+                    // If dropping in the bottom half, move to after this item
+                    if (mouseY > middle) {
+                        toIndex++;
+                    }
                 }
-            } else {
-                section.style.display = 'none';
+            }
+
+            // Adjust index if we're moving down
+            if (fromIndex < toIndex) {
+                toIndex--;
+            }
+
+            if (fromIndex !== -1 && toIndex >= 0) {
+                reorderTasks(fromIndex, toIndex);
             }
         }
 
         function createTaskElement(task, isCompleted) {
-            var div = document.createElement('div');
+            const div = document.createElement('div');
             div.className = isCompleted ? 'task-item completed-task' : 'task-item';
 
-            // Create checkbox
-            var checkbox = document.createElement('div');
+            if (!isCompleted) {
+                div.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('task-checkbox')) return;
+                    handleDragStart(e, task, div);
+                });
+
+                div.addEventListener('touchstart', (e) => {
+                    if (e.target.classList.contains('task-checkbox')) return;
+                    handleDragStart(e, task, div);
+                }, { passive: false });
+
+                div.addEventListener('mousemove', (e) => {
+                    if (draggedTask && draggedTask.id !== task.id) {
+                        div.classList.add('drag-over');
+                        
+                        // Show drop indicator based on mouse position
+                        const rect = div.getBoundingClientRect();
+                        const mouseY = e.clientY;
+                        const middle = rect.top + rect.height / 2;
+                        
+                        if (mouseY < middle) {
+                            showDropIndicator(div, 'before');
+                        } else {
+                            showDropIndicator(div, 'after');
+                        }
+                    }
+                });
+
+                div.addEventListener('mouseleave', () => {
+                    div.classList.remove('drag-over');
+                    const placeholder = document.querySelector('.drag-placeholder');
+                    if (placeholder) {
+                        placeholder.remove();
+                    }
+                });
+
+                div.addEventListener('mouseup', (e) => {
+                    if (draggedTask && draggedTask.id !== task.id) {
+                        handleDrop(e, task);
+                    }
+                    handleDragEnd();
+                });
+
+                div.addEventListener('touchend', (e) => {
+                    if (draggedTask && draggedTask.id !== task.id) {
+                        handleDrop(e, task);
+                    }
+                    handleDragEnd();
+                });
+            }
+
+            const checkbox = document.createElement('div');
             checkbox.className = isCompleted ? 'task-checkbox completed' : 'task-checkbox';
-            checkbox.addEventListener('click', function(e) {
+            checkbox.addEventListener('click', (e) => {
                 e.stopPropagation();
                 toggleTask(task.id);
             });
             div.appendChild(checkbox);
 
-            // Create task text
-            var textSpan = document.createElement('span');
+            const textSpan = document.createElement('span');
             textSpan.className = isCompleted ? 'task-text completed' : 'task-text';
             textSpan.textContent = task.text;
             div.appendChild(textSpan);
 
-            // Add timestamp for completed tasks
             if (isCompleted && task.completedAt) {
-                var timeSpan = document.createElement('span');
+                const timeSpan = document.createElement('span');
                 timeSpan.className = 'task-time';
                 timeSpan.textContent = formatTimeAgo(task.completedAt);
                 div.appendChild(timeSpan);
@@ -376,14 +523,65 @@
             return div;
         }
 
-        document.getElementById('taskInput').addEventListener('keypress', function(e) {
+        function renderTasks() {
+            const activeTasks = tasks.filter(task => !task.completed);
+            const completedTasks = tasks.filter(task => task.completed)
+                .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+
+            const activeContainer = document.getElementById('activeTasks');
+            activeContainer.innerHTML = '';
+            activeTasks.forEach(task => {
+                activeContainer.appendChild(createTaskElement(task, false));
+            });
+
+            const completedSection = document.getElementById('completedSection');
+            const completedContainer = document.getElementById('completedTasks');
+            
+            if (completedTasks.length > 0) {
+                completedSection.style.display = 'block';
+                completedContainer.innerHTML = '';
+                completedTasks.forEach(task => {
+                    completedContainer.appendChild(createTaskElement(task, true));
+                });
+            } else {
+                completedSection.style.display = 'none';
+            }
+
+            const emptyState = document.getElementById('emptyState');
+            emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
+        }
+
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 addTask();
             }
         });
 
-        setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
+        document.addEventListener('mousemove', (e) => {
+            if (draggedElement) {
+                e.preventDefault();
+            }
+        });
 
+        document.addEventListener('mouseup', () => {
+            if (draggedTask) {
+                handleDragEnd();
+            }
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (draggedElement) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', () => {
+            if (draggedTask) {
+                handleDragEnd();
+            }
+        });
+
+        setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
         loadTasks();
     </script>
 </body>
