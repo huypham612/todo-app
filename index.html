@@ -58,6 +58,13 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
+        .task-input:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            border-color: #fbbf24;
+            background-color: #fffbeb;
+        }
+
         @media (prefers-color-scheme: dark) {
             .task-input {
                 background-color: #1f2937;
@@ -68,6 +75,12 @@
             .task-input:focus {
                 border-color: #3b82f6;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+
+            .task-input:disabled {
+                background-color: #451a03;
+                border-color: #92400e;
+                color: #fbbf24;
             }
         }
 
@@ -91,44 +104,6 @@
             background-color: #f3f4f6;
         }
 
-        .task-item:hover .task-arrows {
-            opacity: 1;
-        }
-
-        .task-arrows {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .arrow-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #9ca3af;
-            font-size: 0.875rem;
-            padding: 0.25rem;
-            border-radius: 0.25rem;
-            transition: all 0.2s;
-            min-width: 1.5rem;
-            min-height: 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .arrow-btn:hover {
-            background-color: #e5e7eb;
-            color: #374151;
-        }
-
-        .arrow-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
         @media (prefers-color-scheme: dark) {
             .task-item {
                 background-color: #1f2937;
@@ -136,15 +111,6 @@
             
             .task-item:hover {
                 background-color: #374151;
-            }
-
-            .arrow-btn {
-                color: #6b7280;
-            }
-
-            .arrow-btn:hover {
-                background-color: #4b5563;
-                color: #d1d5db;
             }
         }
 
@@ -287,6 +253,7 @@
 
     <script>
         let tasks = [];
+        const MAX_ACTIVE_TASKS = 7;
 
         function loadTasks() {
             const savedTasks = localStorage.getItem('todoTasks');
@@ -316,11 +283,25 @@
             return `${diffDays}d ago`;
         }
 
+        function updateTaskLimit() {
+            const activeTasks = tasks.filter(task => !task.completed);
+            const input = document.getElementById('taskInput');
+
+            if (activeTasks.length >= MAX_ACTIVE_TASKS) {
+                input.disabled = true;
+                input.placeholder = "Complete a task to add more (7/7 limit)";
+            } else {
+                input.disabled = false;
+                input.placeholder = "Add a new task and press Enter...";
+            }
+        }
+
         function addTask() {
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
+            const activeTasks = tasks.filter(task => !task.completed);
             
-            if (text) {
+            if (text && activeTasks.length < MAX_ACTIVE_TASKS) {
                 tasks.push({
                     id: Date.now(),
                     text: text,
@@ -348,42 +329,6 @@
             renderTasks();
         }
 
-        function moveTaskUp(taskId) {
-            const activeTasks = tasks.filter(task => !task.completed);
-            const taskIndex = activeTasks.findIndex(task => task.id === taskId);
-            
-            if (taskIndex > 0) {
-                // Swap with the task above
-                [activeTasks[taskIndex], activeTasks[taskIndex - 1]] = 
-                [activeTasks[taskIndex - 1], activeTasks[taskIndex]];
-                
-                // Rebuild tasks array
-                const completedTasks = tasks.filter(task => task.completed);
-                tasks = activeTasks.concat(completedTasks);
-                
-                saveTasks();
-                renderTasks();
-            }
-        }
-
-        function moveTaskDown(taskId) {
-            const activeTasks = tasks.filter(task => !task.completed);
-            const taskIndex = activeTasks.findIndex(task => task.id === taskId);
-            
-            if (taskIndex < activeTasks.length - 1) {
-                // Swap with the task below
-                [activeTasks[taskIndex], activeTasks[taskIndex + 1]] = 
-                [activeTasks[taskIndex + 1], activeTasks[taskIndex]];
-                
-                // Rebuild tasks array
-                const completedTasks = tasks.filter(task => task.completed);
-                tasks = activeTasks.concat(completedTasks);
-                
-                saveTasks();
-                renderTasks();
-            }
-        }
-
         function createTaskElement(task, isCompleted) {
             const div = document.createElement('div');
             div.className = isCompleted ? 'task-item completed-task' : 'task-item';
@@ -408,43 +353,13 @@
                 div.appendChild(timeSpan);
             }
 
-            // Add reorder arrows for active tasks
-            if (!isCompleted) {
-                const activeTasks = tasks.filter(t => !t.completed);
-                const taskIndex = activeTasks.findIndex(t => t.id === task.id);
-                
-                const arrowsDiv = document.createElement('div');
-                arrowsDiv.className = 'task-arrows';
-
-                const upBtn = document.createElement('button');
-                upBtn.className = 'arrow-btn';
-                upBtn.textContent = '↑';
-                upBtn.disabled = taskIndex === 0; // Disable if already at top
-                upBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    moveTaskUp(task.id);
-                });
-
-                const downBtn = document.createElement('button');
-                downBtn.className = 'arrow-btn';
-                downBtn.textContent = '↓';
-                downBtn.disabled = taskIndex === activeTasks.length - 1; // Disable if already at bottom
-                downBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    moveTaskDown(task.id);
-                });
-
-                arrowsDiv.appendChild(upBtn);
-                arrowsDiv.appendChild(downBtn);
-                div.appendChild(arrowsDiv);
-            }
-
             return div;
         }
 
         function renderTasks() {
             const activeTasks = tasks.filter(task => !task.completed);
-            const completedTasks = tasks.filter(task => task.completed)
+            const completedTasks = tasks
+                .filter(task => task.completed)
                 .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
 
             const activeContainer = document.getElementById('activeTasks');
@@ -468,6 +383,8 @@
 
             const emptyState = document.getElementById('emptyState');
             emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
+
+            updateTaskLimit();
         }
 
         document.getElementById('taskInput').addEventListener('keypress', (e) => {
