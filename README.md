@@ -6,7 +6,7 @@ A minimal TODO app. Single HTML file, no dependencies.
 
 ## Features
 
-- Add, edit, and complete tasks
+- Add and complete tasks
 - Completed tasks auto-expire in 3 days
 - Data saved locally in your browser
 - Works offline
