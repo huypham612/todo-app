@@ -1,4 +1,5 @@
-const CACHE_NAME = 'focus7-v2-pomodoro';
+const VERSION = '1.0.0';
+const CACHE_NAME = `focus7-v${VERSION}`;
 const urlsToCache = [
   './',
   './index.html',

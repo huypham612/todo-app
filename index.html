@@ -51,8 +51,20 @@
             min-height: 100vh;
         }
 
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+
         .header {
             margin-bottom: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .header {
+                margin-bottom: 1rem;
+            }
         }
 
         .add-task {
@@ -104,6 +116,12 @@
 
         .tasks-section {
             margin-bottom: 2rem;
+        }
+
+        @media (max-width: 640px) {
+            .tasks-section {
+                margin-bottom: 1rem;
+            }
         }
 
         .task-item {
@@ -179,6 +197,12 @@
             opacity: 0.6;
         }
 
+        @media (max-width: 640px) {
+            .completed-section {
+                margin-top: 1.5rem;
+            }
+        }
+
         .section-title {
             font-size: 0.75rem;
             font-weight: 400;
@@ -234,8 +258,14 @@
 
         .empty-state {
             text-align: center;
-            padding: 3rem 0;
+            padding: 1.5rem 0;
             color: #9ca3af;
+        }
+
+        @media (max-width: 640px) {
+            .empty-state {
+                padding: 1rem 0;
+            }
         }
 
         .install-prompt {
@@ -289,19 +319,10 @@
         }
 
         .pomodoro-timer {
-            border-top: 1px solid #e5e7eb;
-            padding-top: 2rem;
-            margin-top: 2rem;
             display: flex;
             align-items: center;
             gap: 1rem;
             flex-wrap: wrap;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .pomodoro-timer {
-                border-top-color: #374151;
-            }
         }
 
         .timer-display {

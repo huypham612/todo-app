@@ -21,8 +21,8 @@ Research-backed limit based on Miller's Rule - people can effectively focus on 7
 
 ## Deployment
 ```bash
-# Update version in sw.js
-sed -i '' 's/focus7-v[0-9]*/focus7-v3/' sw.js
+# Update version in sw.js to force update
+sed -i '' "s/const VERSION = '[^']*'/const VERSION = '1.0.2'/" sw.js
 
 # Push to main branch
 git add . && git commit -m "update" && git push
