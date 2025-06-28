@@ -10,6 +10,7 @@ A minimal TODO app. Single HTML file, no dependencies.
 - Completed tasks auto-expire in 3 days
 - Data saved locally in your browser
 - Works offline
+- Auto system theme
 
 ## Deploy
 
