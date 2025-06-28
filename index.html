@@ -9,7 +9,671 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+        }<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean TODO List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #ffffff;
+            color: #374151;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #111827;
+                color: #e5e7eb;
+            }
+        }
+
+        .container {
+            max-width: 48rem;
+            margin: 0 auto;
+            padding: 1.5rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            margin-bottom: 2rem;
+        }
+
+        .add-task {
+            margin-bottom: 1.5rem;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            background-color: #ffffff;
+            color: #374151;
+        }
+
+        .task-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .task-input {
+                background-color: #1f2937;
+                border-color: #374151;
+                color: #e5e7eb;
+            }
+            
+            .task-input:focus {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            }
+        }
+
+        .tasks-section {
+            margin-bottom: 2rem;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background-color: #f9fafb;
+            border-radius: 0.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .task-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .task-item.dragging {
+            opacity: 0.8;
+            transform: scale(1.05) rotate(2deg);
+            z-index: 1000;
+            cursor: grabbing;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 2px solid #3b82f6;
+            background-color: #eff6ff !important;
+        }
+
+        .task-item.drag-over {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+            border: 2px dashed #3b82f6;
+            background-color: #dbeafe !important;
+        }
+
+        .drag-placeholder {
+            height: 4px;
+            background-color: #3b82f6;
+            border-radius: 2px;
+            margin: 0.5rem 0;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .task-item {
+                background-color: #1f2937;
+            }
+            
+            .task-item:hover {
+                background-color: #374151;
+            }
+
+            .task-item.dragging {
+                background-color: #1e3a8a !important;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+                border-color: #60a5fa;
+            }
+
+            .task-item.drag-over {
+                box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4);
+                background-color: #1e40af !important;
+                border-color: #60a5fa;
+            }
+
+            .drag-placeholder {
+                background-color: #60a5fa;
+            }
+        }
+
+        .task-checkbox {
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .task-checkbox.completed {
+            background-color: #10b981;
+            border-color: #10b981;
+        }
+
+        .task-checkbox.completed::after {
+            content: '✓';
+            color: white;
+            font-size: 1rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .task-checkbox {
+                border-color: #4b5563;
+            }
+        }
+
+        .task-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .task-text.completed {
+            text-decoration: line-through;
+            color: #6b7280;
+        }
+
+        .completed-section {
+            margin-top: 3rem;
+            opacity: 0.6;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-item.completed-task {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background-color: #fafafa;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background-color 0.2s;
+            cursor: default;
+        }
+
+        .task-item.completed-task:hover {
+            background-color: #f5f5f5;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .task-item.completed-task {
+                background-color: #111827;
+            }
+            
+            .task-item.completed-task:hover {
+                background-color: #1f2937;
+            }
+        }
+
+        .task-time {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-left: auto;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .section-title {
+                color: #6b7280;
+            }
+            
+            .task-text.completed {
+                color: #4b5563;
+            }
+            
+            .task-time {
+                color: #6b7280;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 0;
+            color: #9ca3af;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .empty-state {
+                color: #6b7280;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="add-task">
+                <input 
+                    type="text" 
+                    id="taskInput" 
+                    class="task-input" 
+                    placeholder="Add a new task and press Enter..."
+                >
+            </div>
+        </div>
+
+        <div id="activeTasks" class="tasks-section"></div>
+        <div id="completedSection" class="completed-section" style="display: none;">
+            <h2 class="section-title">Completed • Auto-expires in 3 days</h2>
+            <div id="completedTasks"></div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+            <p>No tasks yet. Add one above to get started!</p>
+        </div>
+    </div>
+
+    <script>
+        let tasks = [];
+        let draggedTask = null;
+        let draggedElement = null;
+        let touchStartY = 0;
+        let isDragging = false;
+        let touchMoveThreshold = 10;
+
+        function loadTasks() {
+            const savedTasks = localStorage.getItem('todoTasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+                cleanupExpiredTasks();
+            }
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('todoTasks', JSON.stringify(tasks));
+        }
+
+        function cleanupExpiredTasks() {
+            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+            tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > threeDaysAgo);
+            saveTasks();
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diffHours = Math.floor((now - timestamp) / (60 * 60 * 1000));
+            if (diffHours < 1) return 'just now';
+            if (diffHours < 24) return `${diffHours}h ago`;
+            const diffDays = Math.floor(diffHours / 24);
+            return `${diffDays}d ago`;
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                tasks.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false,
+                    completedAt: null
+                });
+                input.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    return {
+                        ...task,
+                        completed: !task.completed,
+                        completedAt: !task.completed ? Date.now() : null
+                    };
+                }
+                return task;
+            });
+            saveTasks();
+            renderTasks();
+        }
+
+        function reorderTasks(fromIndex, toIndex) {
+            const activeTasks = tasks.filter(task => !task.completed);
+            
+            if (fromIndex < 0 || fromIndex >= activeTasks.length || 
+                toIndex < 0 || toIndex >= activeTasks.length) {
+                return;
+            }
+
+            const taskToMove = activeTasks.splice(fromIndex, 1)[0];
+            activeTasks.splice(toIndex, 0, taskToMove);
+
+            const completedTasks = tasks.filter(task => task.completed);
+            tasks = activeTasks.concat(completedTasks);
+            saveTasks();
+            renderTasks();
+        }
+
+        function handleTouchStart(e, task, element) {
+            const touch = e.touches[0];
+            touchStartY = touch.clientY;
+            isDragging = false;
+            
+            // Set up potential drag
+            draggedTask = task;
+            draggedElement = element;
+            
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            if (!draggedTask || !draggedElement) return;
+            
+            const touch = e.touches[0];
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            
+            // Start dragging if moved enough
+            if (!isDragging && deltaY > touchMoveThreshold) {
+                isDragging = true;
+                draggedElement.classList.add('dragging');
+            }
+            
+            if (isDragging) {
+                e.preventDefault();
+                
+                // Find element under touch point
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const taskItemBelow = elementBelow ? elementBelow.closest('.task-item:not(.dragging)') : null;
+                
+                // Clear previous indicators
+                document.querySelectorAll('.task-item').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                const placeholder = document.querySelector('.drag-placeholder');
+                if (placeholder) placeholder.remove();
+                
+                // Show drop indicator if over valid target
+                if (taskItemBelow && !taskItemBelow.classList.contains('completed-task')) {
+                    taskItemBelow.classList.add('drag-over');
+                    
+                    const rect = taskItemBelow.getBoundingClientRect();
+                    const middle = rect.top + rect.height / 2;
+                    showDropIndicator(taskItemBelow, touch.clientY < middle ? 'before' : 'after');
+                }
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!draggedTask || !isDragging) {
+                // Clean up if we didn't actually drag
+                draggedTask = null;
+                draggedElement = null;
+                return;
+            }
+            
+            const touch = e.changedTouches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            const taskItemBelow = elementBelow ? elementBelow.closest('.task-item:not(.dragging)') : null;
+            
+            if (taskItemBelow && !taskItemBelow.classList.contains('completed-task')) {
+                // Find the target task
+                const allActiveTasks = document.querySelectorAll('.task-item:not(.completed-task)');
+                for (let item of allActiveTasks) {
+                    if (item === taskItemBelow) {
+                        const targetTaskId = parseInt(item.dataset.taskId);
+                        const targetTask = tasks.find(t => t.id === targetTaskId);
+                        if (targetTask) {
+                            handleDrop(e, targetTask);
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            handleDragEnd();
+            isDragging = false;
+        }
+
+        function handleDragEnd() {
+            if (draggedElement) {
+                draggedElement.classList.remove('dragging');
+                
+                // Remove all drag indicators
+                document.querySelectorAll('.task-item').forEach(el => {
+                    el.classList.remove('drag-over');
+                });
+                
+                // Remove any placeholder
+                const placeholder = document.querySelector('.drag-placeholder');
+                if (placeholder) {
+                    placeholder.remove();
+                }
+            }
+            draggedTask = null;
+            draggedElement = null;
+        }
+
+        function showDropIndicator(targetElement, position = 'before') {
+            // Remove existing placeholder
+            const existingPlaceholder = document.querySelector('.drag-placeholder');
+            if (existingPlaceholder) {
+                existingPlaceholder.remove();
+            }
+            
+            // Create new placeholder
+            const placeholder = document.createElement('div');
+            placeholder.className = 'drag-placeholder';
+            
+            if (position === 'before') {
+                targetElement.parentNode.insertBefore(placeholder, targetElement);
+            } else {
+                targetElement.parentNode.insertBefore(placeholder, targetElement.nextSibling);
+            }
+        }
+
+        function handleDrop(e, targetTask) {
+            if (!draggedTask || draggedTask.id === targetTask.id) {
+                return;
+            }
+
+            const activeTasks = tasks.filter(task => !task.completed);
+            const fromIndex = activeTasks.findIndex(task => task.id === draggedTask.id);
+            let toIndex = activeTasks.findIndex(task => task.id === targetTask.id);
+
+            // Determine if we should drop before or after based on position
+            let clientY = e.clientY;
+            if (e.changedTouches && e.changedTouches[0]) {
+                clientY = e.changedTouches[0].clientY;
+            } else if (e.touches && e.touches[0]) {
+                clientY = e.touches[0].clientY;
+            }
+
+            if (clientY) {
+                const targetElement = e.target.closest('.task-item') || 
+                                    document.querySelector(`[data-task-id="${targetTask.id}"]`);
+                if (targetElement) {
+                    const rect = targetElement.getBoundingClientRect();
+                    const middle = rect.top + rect.height / 2;
+                    
+                    // If dropping in the bottom half, move to after this item
+                    if (clientY > middle) {
+                        toIndex++;
+                    }
+                }
+            }
+
+            // Adjust index if we're moving down
+            if (fromIndex < toIndex) {
+                toIndex--;
+            }
+
+            if (fromIndex !== -1 && toIndex >= 0) {
+                reorderTasks(fromIndex, toIndex);
+            }
+        }
+
+        function createTaskElement(task, isCompleted) {
+            const div = document.createElement('div');
+            div.className = isCompleted ? 'task-item completed-task' : 'task-item';
+            div.dataset.taskId = task.id; // Add for easier identification
+
+            if (!isCompleted) {
+                // Mouse events for desktop
+                div.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('task-checkbox')) return;
+                    draggedTask = task;
+                    draggedElement = div;
+                    div.classList.add('dragging');
+                    e.preventDefault();
+                });
+
+                // Touch events for mobile - completely separate handling
+                div.addEventListener('touchstart', (e) => {
+                    if (e.target.classList.contains('task-checkbox')) return;
+                    handleTouchStart(e, task, div);
+                }, { passive: false });
+
+                // Mouse events for desktop drag feedback
+                div.addEventListener('mousemove', (e) => {
+                    if (draggedTask && draggedTask.id !== task.id && !isDragging) { // Only for mouse drag
+                        div.classList.add('drag-over');
+                        
+                        const rect = div.getBoundingClientRect();
+                        const mouseY = e.clientY;
+                        const middle = rect.top + rect.height / 2;
+                        
+                        if (mouseY < middle) {
+                            showDropIndicator(div, 'before');
+                        } else {
+                            showDropIndicator(div, 'after');
+                        }
+                    }
+                });
+
+                div.addEventListener('mouseleave', () => {
+                    if (!isDragging) { // Only clear for mouse events
+                        div.classList.remove('drag-over');
+                        const placeholder = document.querySelector('.drag-placeholder');
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
+                    }
+                });
+
+                div.addEventListener('mouseup', (e) => {
+                    if (draggedTask && draggedTask.id !== task.id && !isDragging) {
+                        handleDrop(e, task);
+                    }
+                    if (!isDragging) handleDragEnd();
+                });
+            }
+
+            const checkbox = document.createElement('div');
+            checkbox.className = isCompleted ? 'task-checkbox completed' : 'task-checkbox';
+            checkbox.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleTask(task.id);
+            });
+            div.appendChild(checkbox);
+
+            const textSpan = document.createElement('span');
+            textSpan.className = isCompleted ? 'task-text completed' : 'task-text';
+            textSpan.textContent = task.text;
+            div.appendChild(textSpan);
+
+            if (isCompleted && task.completedAt) {
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'task-time';
+                timeSpan.textContent = formatTimeAgo(task.completedAt);
+                div.appendChild(timeSpan);
+            }
+
+            return div;
+        }
+
+        function renderTasks() {
+            const activeTasks = tasks.filter(task => !task.completed);
+            const completedTasks = tasks.filter(task => task.completed)
+                .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+
+            const activeContainer = document.getElementById('activeTasks');
+            activeContainer.innerHTML = '';
+            activeTasks.forEach(task => {
+                activeContainer.appendChild(createTaskElement(task, false));
+            });
+
+            const completedSection = document.getElementById('completedSection');
+            const completedContainer = document.getElementById('completedTasks');
+            
+            if (completedTasks.length > 0) {
+                completedSection.style.display = 'block';
+                completedContainer.innerHTML = '';
+                completedTasks.forEach(task => {
+                    completedContainer.appendChild(createTaskElement(task, true));
+                });
+            } else {
+                completedSection.style.display = 'none';
+            }
+
+            const emptyState = document.getElementById('emptyState');
+            emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
+        }
+
+        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+
+        // Desktop mouse events
+        document.addEventListener('mousemove', (e) => {
+            if (draggedElement && !isDragging) {
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (draggedTask && !isDragging) {
+                handleDragEnd();
+            }
+        });
+
+        // Mobile touch events - global handlers
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+        setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
+        loadTasks();
+    </script>
+</body>
+</html>
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
