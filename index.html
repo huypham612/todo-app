@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus7 - Minimal TODO App</title>
     
+    <!-- PWA Manifest - CRITICAL -->
+    <link rel="manifest" href="manifest.json">
+    
     <!-- PWA Meta Tags -->
     <meta name="description" content="Focus on what matters with a 7-task limit. Research-backed minimal TODO app.">
     <meta name="theme-color" content="#3b82f6">
@@ -12,14 +15,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Focus7">
     
-    <!-- Manifest -->
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRm9jdXM3IC0gTWluaW1hbCBUT0RPIEFwcCIsInNob3J0X25hbWUiOiJGb2N1czciLCJkZXNjcmlwdGlvbiI6IkZvY3VzIG9uIHdoYXQgbWF0dGVycyB3aXRoIGEgNy10YXNrIGxpbWl0LiBSZXNlYXJjaC1iYWNrZWQgbWluaW1hbCBUT0RPIGFwcC4iLCJzdGFydF91cmwiOiIuLyIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiMzYjgyZjYiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqRTVNaUlnZG1sbGQwSnZlRDBpTUNBd0lERTVNaUF4T1RJaUlIaHRiRzV6UFNKb2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK0NpQWdQR05wY21Oc1pTQmplRDBpT1RZaUlHTjVQU0k1TmlJZ2NqMGlPREFpSUdacGJHdzlJaU16WWpneVpqWWlMejRLSUNBOGRHVjRkQ0I0UFNJeE1EQWlJSGs5SWpFeE1pSWdabWxzYkQwaUkzZG1abVptWmlJZ1ptOXVkQzF6YVhwbFBTSXpNaUlnWm05dWRDMTNaV2xuYUhROUlqWXdNQ0lnZEc5NGRHNHRZVzVqYUc5eVBTSnRhV1JrYkdVaVBqYzhMM1JsZUhRK0Nqd3ZjM1puUGc9PSIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn0seyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUIzYVdSMGFEMGlOVEV5SWlCb1pXbG5hSFE5SWpVeE1pSWdkbWxsZDBKdmVEMGlNQ0F3SURVRE1USTNJRFUxTVRJaUlIaHRiRzV6UFNKB2RIUndPaTh2ZDNkM0xuY3pMbTl5Wnk4eU1EQXdMM04yWnlJK0NpQWdQR05wY21Oc1pTQmplRDBpTWpVMklpQmplVDBpTWpVMklpQnlQU0l5TURBaUlHWnBiR3c5SWlNelltZ3laalppTHo0S0lDQThkR1Y0ZENCNFBTSTJNQ0IyTFM4dFl5QjVQU0kyTmk0a01qVTJJR1pwYkd3OUlpTjNabVptWmlJZ1ptOXVkQzF6YVhwbFBTSTFNaUlnWm05dWRDMTNaV2xuYUhROUlqWXdNQ0lnZEdWNGRDMWhibU5vYjNJOUltMXBaR1JzWlNJK04xd3ZkR1Y0ZEQ0S1BDOXpkbWMrIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3N2Zyt4bWwifV0sImNhdGVnb3JpZXMiOlsicHJvZHVjdGl2aXR5Il19">
-    
     <!-- Favicons -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8Y2lyY2xlIGN4PSIxNiIgY3k9IjE2IiByPSIxNCIgZmlsbD0iIzNiODJmNiIvPgogIDx0ZXh0IHg9IjE2IiB5PSIyMSIgZmlsbD0iI2ZmZmZmZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9IjYwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSI+NzwvdGV4dD4KPC9zdmc+">
-    
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIHJ4PSIyMCIgZmlsbD0iIzNiODJmNiIvPgogIDx0ZXh0IHg9IjkwIiB5PSIxMTAiIGZpbGw9IiNmZmZmZmYiIGZvbnQtc2l6ZT0iODAiIGZvbnQtd2VpZ2h0PSI2MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjc8L3RleHQ+Cjwvc3ZnPg==">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
+    <link rel="apple-touch-icon" href="icon-180.png">
+
     <style>
         * {
             margin: 0;
@@ -322,6 +322,17 @@
         const MAX_ACTIVE_TASKS = 7;
         let deferredPrompt;
 
+        // CRITICAL: Register Service Worker FIRST
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('✅ Focus7 PWA registered successfully');
+                })
+                .catch(error => {
+                    console.log('❌ Focus7 PWA registration failed:', error);
+                });
+        }
+
         // PWA Install prompt handling
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -352,7 +363,7 @@
                         deferredPrompt = null;
                     });
                 });
-            }, 30000); // Show after 30 seconds of use
+            }, 10000); // Show after 10 seconds of use
         });
 
         function loadTasks() {
@@ -492,42 +503,6 @@
                 addTask();
             }
         });
-
-        // Register Service Worker for PWA functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                // Create a simple service worker inline
-                const swCode = `
-                    const CACHE_NAME = 'focus7-v1';
-                    const urlsToCache = ['./', 'manifest.json'];
-                    
-                    self.addEventListener('install', event => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => cache.addAll(urlsToCache))
-                        );
-                    });
-                    
-                    self.addEventListener('fetch', event => {
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then(response => response || fetch(event.request))
-                        );
-                    });
-                `;
-                
-                const blob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                
-                navigator.serviceWorker.register(swUrl)
-                    .then(registration => {
-                        console.log('Focus7 PWA registered successfully');
-                    })
-                    .catch(error => {
-                        console.log('Focus7 PWA registration failed');
-                    });
-            });
-        }
 
         setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
         loadTasks();
