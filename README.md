@@ -7,7 +7,7 @@ A minimal TODO app. Single HTML file, no dependencies.
 ## Features
 
 - Add and complete tasks
-- Drag to reorder
+- Reorder tasks
 - Completed tasks auto-expire in 3 days
 - Data saved locally in your browser
 - Works offline
