@@ -2,14 +2,14 @@
 
 Research-backed focus optimization that maximizes productivity through intentional task limitation. Installable Progressive Web App, single HTML file, no dependencies.
 
-**Live Demo**: https://huypham612.github.io/todo-app/
+📱 Install: https://huypham612.github.io/todo-app/ (Add to Home Screen)
 
 ## Features
 
 - Add and complete tasks (7 active task limit)
 - Completed tasks auto-expire in 3 days
 - Reliable cross-platform storage (IndexedDB with localStorage fallback)
-- Works offline
+- Data saved locally in your browser (works offline)
 - Auto system theme
 - Installable as a native app on phones and computers
 
