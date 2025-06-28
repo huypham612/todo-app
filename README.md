@@ -2,6 +2,8 @@
 
 A minimal TODO app. Single HTML file, no dependencies.
 
+**Live Demo**: https://huypham612.github.io/todo-app/
+
 ## Features
 
 - Add, edit, and complete tasks
