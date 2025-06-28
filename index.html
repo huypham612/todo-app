@@ -45,13 +45,11 @@
         }
 
         .add-task {
-            display: flex;
-            gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
 
         .task-input {
-            flex: 1;
+            width: 100%;
             padding: 0.75rem 1rem;
             border: 1px solid #e5e7eb;
             border-radius: 0.5rem;
@@ -268,9 +266,8 @@
                     type="text" 
                     id="taskInput" 
                     class="task-input" 
-                    placeholder="Add a new task..."
+                    placeholder="Add a new task and press Enter..."
                 >
-                <button class="add-btn" onclick="addTask()">+</button>
             </div>
         </div>
 
