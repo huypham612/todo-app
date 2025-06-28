@@ -7,6 +7,7 @@ Research-backed focus optimization that maximizes productivity through intention
 ## Features
 
 - Add and complete tasks (7 active task limit)
+- **25-minute Pomodoro timer** for focused work sessions
 - Completed tasks auto-expire in 3 days
 - Reliable cross-platform storage (IndexedDB with localStorage fallback)
 - Data saved locally in your browser (works offline)

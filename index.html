@@ -77,8 +77,8 @@
         .task-input:disabled {
             opacity: 0.7;
             cursor: not-allowed;
-            border-color: #fbbf24;
-            background-color: #fffbeb;
+            border-color: #3b82f6;
+            background-color: #eff6ff;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -94,9 +94,9 @@
             }
 
             .task-input:disabled {
-                background-color: #451a03;
-                border-color: #92400e;
-                color: #fbbf24;
+                background-color: #1e3a8a;
+                border-color: #3b82f6;
+                color: #93c5fd;
             }
         }
 
@@ -142,8 +142,8 @@
         }
 
         .task-checkbox.completed {
-            background-color: #10b981;
-            border-color: #10b981;
+            background-color: #3b82f6;
+            border-color: #3b82f6;
         }
 
         .task-checkbox.completed::after {
@@ -285,6 +285,113 @@
                 background-color: #2563eb;
             }
         }
+
+        .pomodoro-timer {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .pomodoro-timer {
+                border-top-color: #374151;
+            }
+        }
+
+        .timer-display {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timer-display {
+                color: #e5e7eb;
+            }
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .timer-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            color: #374151;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .timer-button:hover {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .timer-button.primary {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .timer-button.primary:hover {
+            background-color: #2563eb;
+            border-color: #2563eb;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .timer-button {
+                background-color: #1f2937;
+                border-color: #374151;
+                color: #e5e7eb;
+            }
+
+            .timer-button:hover {
+                background-color: #374151;
+                border-color: #4b5563;
+            }
+
+            .timer-button.primary {
+                background-color: #3b82f6;
+                color: white;
+                border-color: #3b82f6;
+            }
+
+            .timer-button.primary:hover {
+                background-color: #2563eb;
+                border-color: #2563eb;
+            }
+        }
+
+        .notification-toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            transform: translateX(calc(100% + 2rem));
+            transition: transform 0.3s;
+            opacity: 0;
+        }
+
+        .notification-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -301,6 +408,16 @@
         </div>
 
         <div id="activeTasks" class="tasks-section"></div>
+        
+        <div id="pomodoroTimer" class="pomodoro-timer">
+            <div id="timerDisplay" class="timer-display">🍅 25:00</div>
+            <div class="timer-controls">
+                <button id="startTimerBtn" class="timer-button">Start Focus Session</button>
+                <button id="pauseTimerBtn" class="timer-button" style="display: none;">Pause</button>
+                <button id="stopTimerBtn" class="timer-button" style="display: none;">Stop</button>
+            </div>
+        </div>
+
         <div id="completedSection" class="completed-section" style="display: none;">
             <h2 class="section-title">Completed • Auto-expires in 3 days</h2>
             <div id="completedTasks"></div>
@@ -316,6 +433,8 @@
             <span class="install-dismiss" onclick="document.getElementById('installPrompt').style.display='none'">×</span>
         </div>
     </div>
+
+    <div id="notificationToast" class="notification-toast"></div>
 
     <script>
         let tasks = [];
@@ -405,6 +524,171 @@
 
         // Initialize database
         const taskDB = new TaskDB();
+
+        // Minimal Pomodoro Timer Class
+        class MinimalPomodoroTimer {
+            constructor() {
+                this.duration = 25 * 60; // 25 minutes in seconds
+                this.timeLeft = this.duration;
+                this.isRunning = false;
+                this.isPaused = false;
+                this.interval = null;
+                this.originalTitle = document.title;
+                
+                this.loadState();
+                this.initializeUI();
+                this.updateDisplay();
+            }
+
+            loadState() {
+                const saved = localStorage.getItem('pomodoroState');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    this.timeLeft = state.timeLeft || this.duration;
+                    this.isRunning = state.isRunning || false;
+                    this.isPaused = state.isPaused || false;
+                    
+                    // Resume timer if it was running
+                    if (this.isRunning && !this.isPaused) {
+                        this.startTimer(true);
+                    }
+                }
+            }
+
+            saveState() {
+                const state = {
+                    timeLeft: this.timeLeft,
+                    isRunning: this.isRunning,
+                    isPaused: this.isPaused
+                };
+                localStorage.setItem('pomodoroState', JSON.stringify(state));
+            }
+
+            initializeUI() {
+                document.getElementById('startTimerBtn').addEventListener('click', () => this.startTimer());
+                document.getElementById('pauseTimerBtn').addEventListener('click', () => this.pauseTimer());
+                document.getElementById('stopTimerBtn').addEventListener('click', () => this.stopTimer());
+            }
+
+            formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            updateDisplay() {
+                const display = document.getElementById('timerDisplay');
+                display.textContent = `🍅 ${this.formatTime(this.timeLeft)}`;
+                
+                // Update page title during active session
+                if (this.isRunning && !this.isPaused) {
+                    document.title = `🍅 ${this.formatTime(this.timeLeft)} - Focus7`;
+                } else {
+                    document.title = this.originalTitle;
+                }
+                
+                // Update button visibility
+                const startBtn = document.getElementById('startTimerBtn');
+                const pauseBtn = document.getElementById('pauseTimerBtn');
+                const stopBtn = document.getElementById('stopTimerBtn');
+                
+                if (this.isRunning) {
+                    startBtn.style.display = 'none';
+                    pauseBtn.style.display = 'inline-block';
+                    stopBtn.style.display = 'inline-block';
+                    pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
+                } else {
+                    startBtn.style.display = 'inline-block';
+                    pauseBtn.style.display = 'none';
+                    stopBtn.style.display = 'none';
+                }
+            }
+
+            startTimer(isResume = false) {
+                if (!isResume) {
+                    this.timeLeft = this.duration;
+                }
+                
+                this.isRunning = true;
+                this.isPaused = false;
+                this.saveState();
+                
+                this.interval = setInterval(() => {
+                    if (!this.isPaused) {
+                        this.timeLeft--;
+                        this.updateDisplay();
+                        this.saveState();
+                        
+                        if (this.timeLeft <= 0) {
+                            this.completeSession();
+                        }
+                    }
+                }, 1000);
+                
+                this.updateDisplay();
+            }
+
+            pauseTimer() {
+                this.isPaused = !this.isPaused;
+                this.saveState();
+                this.updateDisplay();
+            }
+
+            stopTimer() {
+                this.isRunning = false;
+                this.isPaused = false;
+                this.timeLeft = this.duration;
+                
+                if (this.interval) {
+                    clearInterval(this.interval);
+                    this.interval = null;
+                }
+                
+                this.saveState();
+                this.updateDisplay();
+            }
+
+            completeSession() {
+                this.stopTimer();
+                this.showNotification('🎉 Session complete!');
+                this.playCompletionSound();
+            }
+
+            showNotification(message) {
+                const toast = document.getElementById('notificationToast');
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            playCompletionSound() {
+                // Create a subtle beep using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (error) {
+                    // Fallback: silent completion if audio fails
+                    console.log('Audio completion sound not available');
+                }
+            }
+        }
+
+        // Initialize timer
+        let pomoTimer;
 
         // CRITICAL: Register Service Worker FIRST
         if ('serviceWorker' in navigator) {
@@ -608,6 +892,9 @@
         
         // Initialize app
         loadTasks();
+        
+        // Initialize Pomodoro timer
+        pomoTimer = new MinimalPomodoroTimer();
     </script>
 </body>
 </html>
