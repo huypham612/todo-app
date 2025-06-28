@@ -322,6 +322,90 @@
         const MAX_ACTIVE_TASKS = 7;
         let deferredPrompt;
 
+        // IndexedDB wrapper class for task storage
+        class TaskDB {
+            constructor() {
+                this.dbName = 'Focus7DB';
+                this.dbVersion = 1;
+                this.storeName = 'tasks';
+                this.db = null;
+            }
+
+            async init() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open(this.dbName, this.dbVersion);
+                    
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        resolve();
+                    };
+                    
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains(this.storeName)) {
+                            const store = db.createObjectStore(this.storeName, { keyPath: 'id' });
+                            store.createIndex('completed', 'completed', { unique: false });
+                        }
+                    };
+                });
+            }
+
+            async load() {
+                try {
+                    if (!this.db) await this.init();
+                    
+                    return new Promise((resolve, reject) => {
+                        const transaction = this.db.transaction([this.storeName], 'readonly');
+                        const store = transaction.objectStore(this.storeName);
+                        const request = store.getAll();
+                        
+                        request.onerror = () => reject(request.error);
+                        request.onsuccess = () => resolve(request.result);
+                    });
+                } catch (error) {
+                    console.warn('IndexedDB failed, falling back to localStorage:', error);
+                    return this.loadFromLocalStorage();
+                }
+            }
+
+            async save(tasks) {
+                try {
+                    if (!this.db) await this.init();
+                    
+                    return new Promise((resolve, reject) => {
+                        const transaction = this.db.transaction([this.storeName], 'readwrite');
+                        const store = transaction.objectStore(this.storeName);
+                        
+                        // Clear existing data
+                        store.clear();
+                        
+                        // Add all tasks
+                        tasks.forEach(task => store.add(task));
+                        
+                        transaction.oncomplete = () => resolve();
+                        transaction.onerror = () => reject(transaction.error);
+                    });
+                } catch (error) {
+                    console.warn('IndexedDB failed, falling back to localStorage:', error);
+                    this.saveToLocalStorage(tasks);
+                }
+            }
+
+            // Fallback methods for localStorage
+            loadFromLocalStorage() {
+                const savedTasks = localStorage.getItem('todoTasks');
+                return savedTasks ? JSON.parse(savedTasks) : [];
+            }
+
+            saveToLocalStorage(tasks) {
+                localStorage.setItem('todoTasks', JSON.stringify(tasks));
+            }
+        }
+
+        // Initialize database
+        const taskDB = new TaskDB();
+
         // CRITICAL: Register Service Worker FIRST
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('./sw.js')
@@ -366,23 +450,37 @@
             }, 10000); // Show after 10 seconds of use
         });
 
-        function loadTasks() {
-            const savedTasks = localStorage.getItem('todoTasks');
-            if (savedTasks) {
-                tasks = JSON.parse(savedTasks);
-                cleanupExpiredTasks();
+        async function loadTasks() {
+            try {
+                const savedTasks = await taskDB.load();
+                if (savedTasks && savedTasks.length > 0) {
+                    tasks = savedTasks;
+                    await cleanupExpiredTasks();
+                }
+                renderTasks();
+            } catch (error) {
+                console.error('Failed to load tasks:', error);
+                renderTasks();
             }
-            renderTasks();
         }
 
-        function saveTasks() {
-            localStorage.setItem('todoTasks', JSON.stringify(tasks));
+        async function saveTasks() {
+            try {
+                await taskDB.save(tasks);
+            } catch (error) {
+                console.error('Failed to save tasks:', error);
+            }
         }
 
-        function cleanupExpiredTasks() {
+        async function cleanupExpiredTasks() {
             const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+            const originalLength = tasks.length;
             tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > threeDaysAgo);
-            saveTasks();
+            
+            // Only save if tasks were actually removed
+            if (tasks.length !== originalLength) {
+                await saveTasks();
+            }
         }
 
         function formatTimeAgo(timestamp) {
@@ -407,7 +505,7 @@
             }
         }
 
-        function addTask() {
+        async function addTask() {
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
             const activeTasks = tasks.filter(task => !task.completed);
@@ -420,12 +518,12 @@
                     completedAt: null
                 });
                 input.value = '';
-                saveTasks();
+                await saveTasks();
                 renderTasks();
             }
         }
 
-        function toggleTask(id) {
+        async function toggleTask(id) {
             tasks = tasks.map(task => {
                 if (task.id === id) {
                     return {
@@ -436,7 +534,7 @@
                 }
                 return task;
             });
-            saveTasks();
+            await saveTasks();
             renderTasks();
         }
 
@@ -446,9 +544,9 @@
 
             const checkbox = document.createElement('div');
             checkbox.className = isCompleted ? 'task-checkbox completed' : 'task-checkbox';
-            checkbox.addEventListener('click', (e) => {
+            checkbox.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                toggleTask(task.id);
+                await toggleTask(task.id);
             });
             div.appendChild(checkbox);
 
@@ -498,13 +596,17 @@
             updateTaskLimit();
         }
 
-        document.getElementById('taskInput').addEventListener('keypress', (e) => {
+        document.getElementById('taskInput').addEventListener('keypress', async (e) => {
             if (e.key === 'Enter') {
-                addTask();
+                await addTask();
             }
         });
 
-        setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
+        setInterval(async () => {
+            await cleanupExpiredTasks();
+        }, 60 * 60 * 1000);
+        
+        // Initialize app
         loadTasks();
     </script>
 </body>
