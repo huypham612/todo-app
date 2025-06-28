@@ -37,13 +37,6 @@
             margin-bottom: 2rem;
         }
 
-        .title {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: #1f2937;
-            margin-bottom: 1.5rem;
-        }
-
         .add-task {
             margin-bottom: 1.5rem;
         }
@@ -60,6 +53,11 @@
             color: #374151;
         }
 
+        .task-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
         @media (prefers-color-scheme: dark) {
             .task-input {
                 background-color: #1f2937;
@@ -71,26 +69,6 @@
                 border-color: #3b82f6;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             }
-        }
-
-        .task-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .add-btn {
-            padding: 0.75rem 1rem;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            font-size: 1.25rem;
-        }
-
-        .add-btn:hover {
-            background-color: #2563eb;
         }
 
         .tasks-section {
@@ -123,8 +101,8 @@
         }
 
         .task-checkbox {
-            width: 1.25rem;
-            height: 1.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
             border: 2px solid #d1d5db;
             border-radius: 0.25rem;
             cursor: pointer;
@@ -141,65 +119,27 @@
         .task-checkbox.completed::after {
             content: '✓';
             color: white;
-            font-size: 0.875rem;
+            font-size: 1rem;
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
         }
 
+        @media (prefers-color-scheme: dark) {
+            .task-checkbox {
+                border-color: #4b5563;
+            }
+        }
+
         .task-text {
             flex: 1;
             line-height: 1.5;
-            cursor: pointer;
         }
 
         .task-text.completed {
             text-decoration: line-through;
             color: #6b7280;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 0.5rem;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .task-item:hover .task-actions {
-            opacity: 1;
-        }
-
-        .action-btn {
-            padding: 0.25rem;
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #9ca3af;
-            transition: color 0.2s;
-            font-size: 1rem;
-        }
-
-        .action-btn:hover {
-            color: #374151;
-        }
-
-        .delete-btn:hover {
-            color: #ef4444;
-        }
-
-        .edit-input {
-            flex: 1;
-            padding: 0.25rem 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.25rem;
-            font-size: 1rem;
-            outline: none;
-        }
-
-        .edit-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .completed-section {
@@ -242,7 +182,21 @@
         .task-time {
             font-size: 0.75rem;
             color: #9ca3af;
-            margin-right: 0.5rem;
+            margin-left: auto;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .section-title {
+                color: #6b7280;
+            }
+            
+            .task-text.completed {
+                color: #4b5563;
+            }
+            
+            .task-time {
+                color: #6b7280;
+            }
         }
 
         .empty-state {
@@ -283,12 +237,10 @@
     </div>
 
     <script>
-        let tasks = [];
-        let editingId = null;
+        var tasks = [];
 
-        // Load tasks from localStorage on page load
         function loadTasks() {
-            const savedTasks = localStorage.getItem('todoTasks');
+            var savedTasks = localStorage.getItem('todoTasks');
             if (savedTasks) {
                 tasks = JSON.parse(savedTasks);
                 cleanupExpiredTasks();
@@ -296,32 +248,30 @@
             renderTasks();
         }
 
-        // Save tasks to localStorage
         function saveTasks() {
             localStorage.setItem('todoTasks', JSON.stringify(tasks));
         }
 
-        // Clean up tasks older than 3 days
         function cleanupExpiredTasks() {
-            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
-            tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > threeDaysAgo);
+            var threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+            tasks = tasks.filter(function(task) {
+                return !task.completed || !task.completedAt || task.completedAt > threeDaysAgo;
+            });
             saveTasks();
         }
 
-        // Format time ago
         function formatTimeAgo(timestamp) {
-            const now = Date.now();
-            const diffHours = Math.floor((now - timestamp) / (60 * 60 * 1000));
+            var now = Date.now();
+            var diffHours = Math.floor((now - timestamp) / (60 * 60 * 1000));
             if (diffHours < 1) return 'just now';
-            if (diffHours < 24) return `${diffHours}h ago`;
-            const diffDays = Math.floor(diffHours / 24);
-            return `${diffDays}d ago`;
+            if (diffHours < 24) return diffHours + 'h ago';
+            var diffDays = Math.floor(diffHours / 24);
+            return diffDays + 'd ago';
         }
 
-        // Add new task
         function addTask() {
-            const input = document.getElementById('taskInput');
-            const text = input.value.trim();
+            var input = document.getElementById('taskInput');
+            var text = input.value.trim();
             
             if (text) {
                 tasks.push({
@@ -336,12 +286,12 @@
             }
         }
 
-        // Toggle task completion
         function toggleTask(id) {
-            tasks = tasks.map(task => {
+            tasks = tasks.map(function(task) {
                 if (task.id === id) {
                     return {
-                        ...task,
+                        id: task.id,
+                        text: task.text,
                         completed: !task.completed,
                         completedAt: !task.completed ? Date.now() : null
                     };
@@ -352,159 +302,88 @@
             renderTasks();
         }
 
-        // Delete task
-        function deleteTask(id) {
-            tasks = tasks.filter(task => task.id !== id);
-            saveTasks();
-            renderTasks();
-        }
-
-        // Start editing task
-        function startEdit(id, text) {
-            editingId = id;
-            renderTasks();
-            
-            // Focus the edit input
-            setTimeout(() => {
-                const editInput = document.querySelector('.edit-input');
-                if (editInput) {
-                    editInput.focus();
-                    editInput.value = text;
-                }
-            }, 10);
-        }
-
-        // Save edit
-        function saveEdit(id, newText) {
-            if (newText.trim()) {
-                tasks = tasks.map(task => 
-                    task.id === id ? { ...task, text: newText.trim() } : task
-                );
-                saveTasks();
-            }
-            editingId = null;
-            renderTasks();
-        }
-
-        // Cancel edit
-        function cancelEdit() {
-            editingId = null;
-            renderTasks();
-        }
-
-        // Render all tasks
         function renderTasks() {
-            const activeTasks = tasks.filter(task => !task.completed);
-            const completedTasks = tasks
-                .filter(task => task.completed)
-                .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+            var activeTasks = tasks.filter(function(task) {
+                return !task.completed;
+            });
+            var completedTasks = tasks.filter(function(task) {
+                return task.completed;
+            }).sort(function(a, b) {
+                return (b.completedAt || 0) - (a.completedAt || 0);
+            });
 
             renderActiveSection(activeTasks);
             renderCompletedSection(completedTasks);
             
-            // Show/hide empty state
-            const emptyState = document.getElementById('emptyState');
+            var emptyState = document.getElementById('emptyState');
             emptyState.style.display = tasks.length === 0 ? 'block' : 'none';
         }
 
-        // Render active tasks
         function renderActiveSection(activeTasks) {
-            const container = document.getElementById('activeTasks');
+            var container = document.getElementById('activeTasks');
             container.innerHTML = '';
 
-            activeTasks.forEach(task => {
-                const taskEl = createTaskElement(task, false);
+            for (var i = 0; i < activeTasks.length; i++) {
+                var taskEl = createTaskElement(activeTasks[i], false);
                 container.appendChild(taskEl);
-            });
+            }
         }
 
-        // Render completed tasks
         function renderCompletedSection(completedTasks) {
-            const section = document.getElementById('completedSection');
-            const container = document.getElementById('completedTasks');
+            var section = document.getElementById('completedSection');
+            var container = document.getElementById('completedTasks');
             
             if (completedTasks.length > 0) {
                 section.style.display = 'block';
                 container.innerHTML = '';
                 
-                completedTasks.forEach(task => {
-                    const taskEl = createTaskElement(task, true);
+                for (var i = 0; i < completedTasks.length; i++) {
+                    var taskEl = createTaskElement(completedTasks[i], true);
                     container.appendChild(taskEl);
-                });
+                }
             } else {
                 section.style.display = 'none';
             }
         }
 
-        // Create task element
         function createTaskElement(task, isCompleted) {
-            const div = document.createElement('div');
-            div.className = 'task-item';
+            var div = document.createElement('div');
+            div.className = isCompleted ? 'task-item completed-task' : 'task-item';
 
-            if (editingId === task.id) {
-                div.innerHTML = `
-                    <div class="${isCompleted ? 'task-checkbox completed' : 'task-checkbox'}" 
-                         onclick="toggleTask(${task.id})"></div>
-                    <input type="text" class="edit-input" value="" 
-                           onkeypress="if(event.key==='Enter') saveEdit(${task.id}, this.value)"
-                           onblur="saveEdit(${task.id}, this.value)">
-                    <div class="task-actions">
-                        <button class="action-btn" onclick="saveEdit(${task.id}, document.querySelector('.edit-input').value)">✓</button>
-                        <button class="action-btn" onclick="cancelEdit()">✕</button>
-                    </div>
-                `;
-                
-                // Set the input value safely after creating the element
-                setTimeout(() => {
-                    const input = div.querySelector('.edit-input');
-                    if (input) input.value = task.text;
-                }, 0);
-                
-            } else {
-                const timeAgo = isCompleted && task.completedAt ? 
-                    `<span class="task-time">${formatTimeAgo(task.completedAt)}</span>` : '';
-                
-                div.innerHTML = `
-                    <div class="${isCompleted ? 'task-checkbox completed' : 'task-checkbox'}" 
-                         onclick="toggleTask(${task.id})"></div>
-                    <span class="${isCompleted ? 'task-text completed' : 'task-text'}">${escapeHtml(task.text)}</span>
-                    ${timeAgo}
-                    <div class="task-actions">
-                        ${!isCompleted ? `<button class="action-btn" onclick="startEditById(${task.id})">✎</button>` : ''}
-                        <button class="action-btn delete-btn" onclick="deleteTask(${task.id})">✕</button>
-                    </div>
-                `;
+            // Create checkbox
+            var checkbox = document.createElement('div');
+            checkbox.className = isCompleted ? 'task-checkbox completed' : 'task-checkbox';
+            checkbox.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleTask(task.id);
+            });
+            div.appendChild(checkbox);
+
+            // Create task text
+            var textSpan = document.createElement('span');
+            textSpan.className = isCompleted ? 'task-text completed' : 'task-text';
+            textSpan.textContent = task.text;
+            div.appendChild(textSpan);
+
+            // Add timestamp for completed tasks
+            if (isCompleted && task.completedAt) {
+                var timeSpan = document.createElement('span');
+                timeSpan.className = 'task-time';
+                timeSpan.textContent = formatTimeAgo(task.completedAt);
+                div.appendChild(timeSpan);
             }
 
             return div;
         }
 
-        // Helper function to escape HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Start edit by ID (avoids string escaping issues)
-        function startEditById(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                startEdit(id, task.text);
-            }
-        }
-
-        // Handle Enter key in main input
         document.getElementById('taskInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 addTask();
             }
         });
 
-        // Clean up expired tasks periodically
-        setInterval(cleanupExpiredTasks, 60 * 60 * 1000); // Every hour
+        setInterval(cleanupExpiredTasks, 60 * 60 * 1000);
 
-        // Load tasks when page loads
         loadTasks();
     </script>
 </body>
