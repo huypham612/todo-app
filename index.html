@@ -321,6 +321,7 @@
         .pomodoro-timer {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
         }
@@ -329,11 +330,23 @@
             font-size: 1.25rem;
             font-weight: 500;
             color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .timer-display:hover {
+            background-color: #f9fafb;
         }
 
         @media (prefers-color-scheme: dark) {
             .timer-display {
                 color: #e5e7eb;
+            }
+            
+            .timer-display:hover {
+                background-color: #374151;
             }
         }
 
@@ -439,11 +452,7 @@
 
         <div id="pomodoroTimer" class="pomodoro-timer">
             <div id="timerDisplay" class="timer-display">🍅 25:00</div>
-            <div class="timer-controls">
-                <button id="startTimerBtn" class="timer-button">Start Focus Session</button>
-                <button id="pauseTimerBtn" class="timer-button" style="display: none;">Pause</button>
-                <button id="stopTimerBtn" class="timer-button" style="display: none;">Stop</button>
-            </div>
+            <button id="clarity7Btn" class="timer-button" onclick="window.open('https://claude.ai/public/artifacts/83db0d97-97df-4c9f-ac28-d627c6001898?fullscreen=true', '_blank')">Clarity7</button>
         </div>
 
         <div id="completedSection" class="completed-section" style="display: none;">
@@ -556,6 +565,7 @@
                 this.isPaused = false;
                 this.interval = null;
                 this.originalTitle = document.title;
+                this.clickTimeout = null;
                 
                 this.loadState();
                 this.initializeUI();
@@ -587,9 +597,33 @@
             }
 
             initializeUI() {
-                document.getElementById('startTimerBtn').addEventListener('click', () => this.startTimer());
-                document.getElementById('pauseTimerBtn').addEventListener('click', () => this.pauseTimer());
-                document.getElementById('stopTimerBtn').addEventListener('click', () => this.stopTimer());
+                const timerDisplay = document.getElementById('timerDisplay');
+                
+                timerDisplay.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    if (this.clickTimeout) {
+                        // Double click detected
+                        clearTimeout(this.clickTimeout);
+                        this.clickTimeout = null;
+                        
+                        if (this.isRunning) {
+                            this.stopTimer();
+                        }
+                    } else {
+                        // First click - wait to see if there's a second click
+                        this.clickTimeout = setTimeout(() => {
+                            this.clickTimeout = null;
+                            
+                            // Single click behavior
+                            if (!this.isRunning) {
+                                this.startTimer();
+                            } else {
+                                this.pauseTimer();
+                            }
+                        }, 300); // 300ms delay to detect double-click
+                    }
+                });
             }
 
             formatTime(seconds) {
@@ -609,21 +643,7 @@
                     document.title = this.originalTitle;
                 }
                 
-                // Update button visibility
-                const startBtn = document.getElementById('startTimerBtn');
-                const pauseBtn = document.getElementById('pauseTimerBtn');
-                const stopBtn = document.getElementById('stopTimerBtn');
-                
-                if (this.isRunning) {
-                    startBtn.style.display = 'none';
-                    pauseBtn.style.display = 'inline-block';
-                    stopBtn.style.display = 'inline-block';
-                    pauseBtn.textContent = this.isPaused ? 'Resume' : 'Pause';
-                } else {
-                    startBtn.style.display = 'inline-block';
-                    pauseBtn.style.display = 'none';
-                    stopBtn.style.display = 'none';
-                }
+                // No buttons to show/hide - timer display handles all interactions
             }
 
             startTimer(isResume = false) {
