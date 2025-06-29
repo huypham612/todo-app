@@ -683,7 +683,7 @@
                 
                 setTimeout(() => {
                     toast.classList.remove('show');
-                }, 3000);
+                }, 5000);
             }
 
             playCompletionSound() {
@@ -757,6 +757,80 @@
                 });
             }, 10000); // Show after 10 seconds of use
         });
+
+        function detectClarity7JSON(text) {
+            try {
+                const trimmed = text.trim();
+                if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
+                    return false;
+                }
+                
+                const parsed = JSON.parse(trimmed);
+                return parsed.source === 'Clarity7' && 
+                       Array.isArray(parsed.tasks) && 
+                       parsed.tasks.length > 0;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function importFromClarity7(jsonText) {
+            try {
+                const data = JSON.parse(jsonText);
+                const importTasks = data.tasks.filter(task => typeof task === 'string' && task.trim());
+                
+                if (importTasks.length === 0) {
+                    pomoTimer.showNotification('No valid tasks found in Clarity7 import');
+                    return;
+                }
+
+                // Clean slate approach: mark ALL existing active tasks as completed
+                const activeTasks = tasks.filter(task => !task.completed);
+                const completedCount = activeTasks.length;
+                
+                activeTasks.forEach(activeTask => {
+                    // Find and mark each active task as completed
+                    for (let i = 0; i < tasks.length; i++) {
+                        if (tasks[i].id === activeTask.id) {
+                            tasks[i].completed = true;
+                            tasks[i].completedAt = Date.now();
+                            break;
+                        }
+                    }
+                });
+
+                // Import up to 7 tasks from Clarity7 (respect the limit)
+                const tasksToImport = importTasks.slice(0, MAX_ACTIVE_TASKS);
+                const baseTimestamp = Date.now() + 1000000; // Future timestamp to ensure top position
+                
+                tasksToImport.forEach((taskText, index) => {
+                    tasks.push({
+                        id: baseTimestamp + index, // Sequential IDs for imported tasks at top
+                        text: taskText.trim(),
+                        completed: false,
+                        completedAt: null
+                    });
+                });
+
+                await saveTasks();
+                renderTasks();
+
+                // Show confirmation message
+                let message = `Imported ${tasksToImport.length} tasks from Clarity7`;
+                if (completedCount > 0) {
+                    message += `. Moved ${completedCount} existing tasks to completed`;
+                }
+                if (importTasks.length > MAX_ACTIVE_TASKS) {
+                    message += ` (imported first ${MAX_ACTIVE_TASKS} of ${importTasks.length} tasks)`;
+                }
+                pomoTimer.showNotification(message);
+
+            } catch (error) {
+                console.error('Import failed:', error);
+                pomoTimer.showNotification('Failed to import from Clarity7. Please check the JSON format.');
+            }
+        }
+
 
         async function loadTasks() {
             try {
@@ -908,6 +982,17 @@
             if (e.key === 'Enter') {
                 await addTask();
             }
+        });
+
+        // Add paste event listener for Clarity7 import
+        document.getElementById('taskInput').addEventListener('paste', async (e) => {
+            setTimeout(async () => {
+                const pastedText = e.target.value;
+                if (detectClarity7JSON(pastedText)) {
+                    e.target.value = ''; // Clear the input
+                    await importFromClarity7(pastedText);
+                }
+            }, 0);
         });
 
         setInterval(async () => {
