@@ -452,7 +452,7 @@
 
         <div id="pomodoroTimer" class="pomodoro-timer">
             <div id="timerDisplay" class="timer-display">🍅 25:00</div>
-            <button id="clarity7Btn" class="timer-button" onclick="window.open('https://claude.ai/public/artifacts/83db0d97-97df-4c9f-ac28-d627c6001898?fullscreen=true', '_blank')">Clarity7</button>
+            <button id="clarity7Btn" class="timer-button" onclick="openExternalLink('https://claude.ai/public/artifacts/83db0d97-97df-4c9f-ac28-d627c6001898?fullscreen=true')">Clarity7</button>
         </div>
 
         <div id="completedSection" class="completed-section" style="display: none;">
@@ -1041,6 +1041,22 @@
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
         
+        // Function to handle external links properly in PWA context
+        function openExternalLink(url) {
+            // Check if running as PWA (standalone mode)
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.navigator.standalone ||
+                         document.referrer.includes('android-app://');
+            
+            if (isPWA) {
+                // In PWA mode, force external browser
+                window.location.href = url;
+            } else {
+                // In regular browser, open new tab
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+        }
+
         // Initialize app
         loadTasks();
         
