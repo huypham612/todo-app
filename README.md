@@ -18,7 +18,7 @@ Visit the URL → "Add to Home Screen" or "Install App"
 - **Pomodoro Timer**: 25-minute focus sessions
 - **PWA**: Install as native app
 - **Offline**: Works without internet
-- **Auto-cleanup**: Tasks expire after 1 day
+- **Auto-cleanup**: Completed tasks expire after 1 day
 
 ## Clarity7 Integration
 
