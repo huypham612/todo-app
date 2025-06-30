@@ -188,7 +188,6 @@
         }
 
         .task-text.completed {
-            text-decoration: line-through;
             color: #6b7280;
         }
 
@@ -875,9 +874,9 @@
         }
 
         async function cleanupExpiredTasks() {
-            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000);
+            const oneDayAgo = Date.now() - (1 * 24 * 60 * 60 * 1000);
             const originalLength = tasks.length;
-            tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > threeDaysAgo);
+            tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > oneDayAgo);
             
             // Only save if tasks were actually removed
             if (tasks.length !== originalLength) {
