@@ -1,4 +1,4 @@
-const VERSION = '1.1.3';
+const VERSION = '1.1.4';
 const CACHE_NAME = `focus7-v${VERSION}`;
 const urlsToCache = [
   './',
