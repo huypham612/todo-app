@@ -538,6 +538,15 @@
             }
         }
 
+        function generateTaskId() {
+            // randomUUID is only available in secure contexts (https/localhost);
+            // fall back to a timestamp + random suffix for file:// and older browsers.
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        }
+
         async function addTask() {
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
@@ -545,7 +554,7 @@
 
             if (text && activeTasks.length < MAX_ACTIVE_TASKS) {
                 tasks.push({
-                    id: Date.now(),
+                    id: generateTaskId(),
                     text: text,
                     completed: false,
                     completedAt: null
