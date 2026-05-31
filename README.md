@@ -1,6 +1,6 @@
 # Focus7 - Minimal TODO App
 
-A minimal PWA with a 7-task limit and Pomodoro timer, seamlessly integrates with [Clarity7](https://claude.ai/public/artifacts/45f4c4c3-53b3-4639-83e0-24871b018dab), an AI-powered priority finder, to transform decision paralysis into focused action using AI and cognitive science.
+A minimal PWA with a 7-task limit that turns decision paralysis into focused action by forcing you to pick what actually matters.
 
 ## Why 7 Tasks?
 
@@ -14,20 +14,9 @@ Visit the URL → "Add to Home Screen" or "Install App"
 ## Features
 
 - **7-Task Limit**: Research-backed focus
-- **Clarity7 Import**: Paste AI-prioritized tasks directly
-- **Pomodoro Timer**: 25-minute focus sessions
 - **PWA**: Install as native app
 - **Offline**: Works without internet
 - **Auto-cleanup**: Completed tasks expire after 1 day
-
-## Clarity7 Integration
-
-Focus7 works seamlessly with [Clarity7](https://claude.ai/public/artifacts/45f4c4c3-53b3-4639-83e0-24871b018dab) - an AI-powered priority finder:
-
-1. **Clarify**: Use Clarity7 to find your essential priorities from overwhelming task lists
-2. **Export**: Copy the AI-generated task list from Clarity7
-3. **Import**: Paste directly into Focus7's task input box
-4. **Execute**: Focus on your 7 most important tasks
 
 ## Deployment
 ```bash

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus7 - Minimal TODO App</title>
-    
+
     <!-- PWA Manifest - CRITICAL -->
     <link rel="manifest" href="manifest.json">
-    
+
     <!-- PWA Meta Tags -->
     <meta name="description" content="Focus on what matters with a 7-task limit. Research-backed minimal TODO app.">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
@@ -16,7 +16,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" media="(prefers-color-scheme: light)">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-title" content="Focus7">
-    
+
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icon-16.png">
@@ -101,7 +101,7 @@
                 border-color: #374151;
                 color: #e5e7eb;
             }
-            
+
             .task-input:focus {
                 border-color: #3b82f6;
                 box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
@@ -144,7 +144,7 @@
             .task-item {
                 background-color: #1f2937;
             }
-            
+
             .task-item:hover {
                 background-color: #374151;
             }
@@ -229,7 +229,7 @@
             .task-item.completed-task {
                 background-color: #111827;
             }
-            
+
             .task-item.completed-task:hover {
                 background-color: #1f2937;
             }
@@ -245,11 +245,11 @@
             .section-title {
                 color: #6b7280;
             }
-            
+
             .task-text.completed {
                 color: #4b5563;
             }
-            
+
             .task-time {
                 color: #6b7280;
             }
@@ -316,142 +316,26 @@
                 background-color: #2563eb;
             }
         }
-
-        .pomodoro-timer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .timer-display {
-            font-size: 1.25rem;
-            font-weight: 500;
-            color: #374151;
-            cursor: pointer;
-            transition: all 0.2s;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-        }
-
-        .timer-display:hover {
-            background-color: #f9fafb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .timer-display {
-                color: #e5e7eb;
-            }
-            
-            .timer-display:hover {
-                background-color: #374151;
-            }
-        }
-
-        .timer-controls {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .timer-button {
-            padding: 0.5rem 1rem;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            background-color: #ffffff;
-            color: #374151;
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            outline: none;
-        }
-
-        .timer-button:hover {
-            background-color: #f9fafb;
-            border-color: #d1d5db;
-        }
-
-        .timer-button.primary {
-            background-color: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .timer-button.primary:hover {
-            background-color: #2563eb;
-            border-color: #2563eb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            .timer-button {
-                background-color: #1f2937;
-                border-color: #374151;
-                color: #e5e7eb;
-            }
-
-            .timer-button:hover {
-                background-color: #374151;
-                border-color: #4b5563;
-            }
-
-            .timer-button.primary {
-                background-color: #3b82f6;
-                color: white;
-                border-color: #3b82f6;
-            }
-
-            .timer-button.primary:hover {
-                background-color: #2563eb;
-                border-color: #2563eb;
-            }
-        }
-
-        .notification-toast {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background-color: #3b82f6;
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1001;
-            transform: translateX(calc(100% + 2rem));
-            transition: transform 0.3s;
-            opacity: 0;
-        }
-
-        .notification-toast.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="add-task">
-                <input 
-                    type="text" 
-                    id="taskInput" 
-                    class="task-input" 
+                <input
+                    type="text"
+                    id="taskInput"
+                    class="task-input"
                     placeholder="Add a new task and press Enter..."
                 >
             </div>
         </div>
 
         <div id="activeTasks" class="tasks-section"></div>
-        
+
         <div id="emptyState" class="empty-state">
             <p>No tasks yet. Add one above to get started!</p>
             <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.5;">Focus7 • 7 task limit for maximum focus</p>
-        </div>
-
-        <div id="pomodoroTimer" class="pomodoro-timer">
-            <div id="timerDisplay" class="timer-display">🍅 25:00</div>
-            <button id="clarity7Btn" class="timer-button" onclick="openExternalLink('https://claude.ai/public/artifacts/45f4c4c3-53b3-4639-83e0-24871b018dab?fullscreen=true')">Clarity7</button>
         </div>
 
         <div id="completedSection" class="completed-section" style="display: none;">
@@ -463,8 +347,6 @@
             <span class="install-dismiss" onclick="document.getElementById('installPrompt').style.display='none'">×</span>
         </div>
     </div>
-
-    <div id="notificationToast" class="notification-toast"></div>
 
     <script>
         let tasks = [];
@@ -483,13 +365,13 @@
             async init() {
                 return new Promise((resolve, reject) => {
                     const request = indexedDB.open(this.dbName, this.dbVersion);
-                    
+
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => {
                         this.db = request.result;
                         resolve();
                     };
-                    
+
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
                         if (!db.objectStoreNames.contains(this.storeName)) {
@@ -503,12 +385,12 @@
             async load() {
                 try {
                     if (!this.db) await this.init();
-                    
+
                     return new Promise((resolve, reject) => {
                         const transaction = this.db.transaction([this.storeName], 'readonly');
                         const store = transaction.objectStore(this.storeName);
                         const request = store.getAll();
-                        
+
                         request.onerror = () => reject(request.error);
                         request.onsuccess = () => resolve(request.result);
                     });
@@ -521,17 +403,17 @@
             async save(tasks) {
                 try {
                     if (!this.db) await this.init();
-                    
+
                     return new Promise((resolve, reject) => {
                         const transaction = this.db.transaction([this.storeName], 'readwrite');
                         const store = transaction.objectStore(this.storeName);
-                        
+
                         // Clear existing data
                         store.clear();
-                        
+
                         // Add all tasks
                         tasks.forEach(task => store.add(task));
-                        
+
                         transaction.oncomplete = () => resolve();
                         transaction.onerror = () => reject(transaction.error);
                     });
@@ -555,182 +437,6 @@
         // Initialize database
         const taskDB = new TaskDB();
 
-        // Minimal Pomodoro Timer Class
-        class MinimalPomodoroTimer {
-            constructor() {
-                this.duration = 25 * 60; // 25 minutes in seconds
-                this.timeLeft = this.duration;
-                this.isRunning = false;
-                this.isPaused = false;
-                this.interval = null;
-                this.originalTitle = document.title;
-                this.clickTimeout = null;
-                
-                this.loadState();
-                this.initializeUI();
-                this.updateDisplay();
-            }
-
-            loadState() {
-                const saved = localStorage.getItem('pomodoroState');
-                if (saved) {
-                    const state = JSON.parse(saved);
-                    this.timeLeft = state.timeLeft || this.duration;
-                    this.isRunning = state.isRunning || false;
-                    this.isPaused = state.isPaused || false;
-                    
-                    // Resume timer if it was running
-                    if (this.isRunning && !this.isPaused) {
-                        this.startTimer(true);
-                    }
-                }
-            }
-
-            saveState() {
-                const state = {
-                    timeLeft: this.timeLeft,
-                    isRunning: this.isRunning,
-                    isPaused: this.isPaused
-                };
-                localStorage.setItem('pomodoroState', JSON.stringify(state));
-            }
-
-            initializeUI() {
-                const timerDisplay = document.getElementById('timerDisplay');
-                
-                timerDisplay.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    
-                    if (this.clickTimeout) {
-                        // Double click detected
-                        clearTimeout(this.clickTimeout);
-                        this.clickTimeout = null;
-                        
-                        if (this.isRunning) {
-                            this.stopTimer();
-                        }
-                    } else {
-                        // First click - wait to see if there's a second click
-                        this.clickTimeout = setTimeout(() => {
-                            this.clickTimeout = null;
-                            
-                            // Single click behavior
-                            if (!this.isRunning) {
-                                this.startTimer();
-                            } else {
-                                this.pauseTimer();
-                            }
-                        }, 300); // 300ms delay to detect double-click
-                    }
-                });
-            }
-
-            formatTime(seconds) {
-                const mins = Math.floor(seconds / 60);
-                const secs = seconds % 60;
-                return `${mins}:${secs.toString().padStart(2, '0')}`;
-            }
-
-            updateDisplay() {
-                const display = document.getElementById('timerDisplay');
-                display.textContent = `🍅 ${this.formatTime(this.timeLeft)}`;
-                
-                // Update page title during active session
-                if (this.isRunning && !this.isPaused) {
-                    document.title = `🍅 ${this.formatTime(this.timeLeft)} - Focus7`;
-                } else {
-                    document.title = this.originalTitle;
-                }
-                
-                // No buttons to show/hide - timer display handles all interactions
-            }
-
-            startTimer(isResume = false) {
-                if (!isResume) {
-                    this.timeLeft = this.duration;
-                }
-                
-                this.isRunning = true;
-                this.isPaused = false;
-                this.saveState();
-                
-                this.interval = setInterval(() => {
-                    if (!this.isPaused) {
-                        this.timeLeft--;
-                        this.updateDisplay();
-                        this.saveState();
-                        
-                        if (this.timeLeft <= 0) {
-                            this.completeSession();
-                        }
-                    }
-                }, 1000);
-                
-                this.updateDisplay();
-            }
-
-            pauseTimer() {
-                this.isPaused = !this.isPaused;
-                this.saveState();
-                this.updateDisplay();
-            }
-
-            stopTimer() {
-                this.isRunning = false;
-                this.isPaused = false;
-                this.timeLeft = this.duration;
-                
-                if (this.interval) {
-                    clearInterval(this.interval);
-                    this.interval = null;
-                }
-                
-                this.saveState();
-                this.updateDisplay();
-            }
-
-            completeSession() {
-                this.stopTimer();
-                this.showNotification('🎉 Session complete!');
-                this.playCompletionSound();
-            }
-
-            showNotification(message) {
-                const toast = document.getElementById('notificationToast');
-                toast.textContent = message;
-                toast.classList.add('show');
-                
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 5000);
-            }
-
-            playCompletionSound() {
-                // Create a subtle beep using Web Audio API
-                try {
-                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.3);
-                } catch (error) {
-                    // Fallback: silent completion if audio fails
-                    console.log('Audio completion sound not available');
-                }
-            }
-        }
-
-        // Initialize timer
-        let pomoTimer;
-
         // CRITICAL: Register Service Worker FIRST
         if ('serviceWorker' in navigator && location.protocol !== 'file:') {
             navigator.serviceWorker.register('./sw.js')
@@ -748,23 +454,23 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
+
             // Don't show if already in standalone mode
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 return;
             }
-            
+
             // Show install prompt after user has used the app a bit
             setTimeout(() => {
                 const installPrompt = document.getElementById('installPrompt');
                 installPrompt.style.display = 'flex';
-                
+
                 installPrompt.addEventListener('click', (e) => {
                     // Don't install if clicking dismiss button
                     if (e.target.classList.contains('install-dismiss')) {
                         return;
                     }
-                    
+
                     installPrompt.style.display = 'none';
                     deferredPrompt.prompt();
                     deferredPrompt.userChoice.then((choiceResult) => {
@@ -776,80 +482,6 @@
                 });
             }, 10000); // Show after 10 seconds of use
         });
-
-        function detectClarity7JSON(text) {
-            try {
-                const trimmed = text.trim();
-                if (!trimmed.startsWith('{') || !trimmed.endsWith('}')) {
-                    return false;
-                }
-                
-                const parsed = JSON.parse(trimmed);
-                return parsed.source === 'Clarity7' && 
-                       Array.isArray(parsed.tasks) && 
-                       parsed.tasks.length > 0;
-            } catch (error) {
-                return false;
-            }
-        }
-
-        async function importFromClarity7(jsonText) {
-            try {
-                const data = JSON.parse(jsonText);
-                const importTasks = data.tasks.filter(task => typeof task === 'string' && task.trim());
-                
-                if (importTasks.length === 0) {
-                    pomoTimer.showNotification('No valid tasks found in Clarity7 import');
-                    return;
-                }
-
-                // Clean slate approach: mark ALL existing active tasks as completed
-                const activeTasks = tasks.filter(task => !task.completed);
-                const completedCount = activeTasks.length;
-                
-                activeTasks.forEach(activeTask => {
-                    // Find and mark each active task as completed
-                    for (let i = 0; i < tasks.length; i++) {
-                        if (tasks[i].id === activeTask.id) {
-                            tasks[i].completed = true;
-                            tasks[i].completedAt = Date.now();
-                            break;
-                        }
-                    }
-                });
-
-                // Import up to 7 tasks from Clarity7 (respect the limit)
-                const tasksToImport = importTasks.slice(0, MAX_ACTIVE_TASKS);
-                const baseTimestamp = Date.now() + 1000000; // Future timestamp to ensure top position
-                
-                tasksToImport.forEach((taskText, index) => {
-                    tasks.push({
-                        id: baseTimestamp + index, // Sequential IDs for imported tasks at top
-                        text: taskText.trim(),
-                        completed: false,
-                        completedAt: null
-                    });
-                });
-
-                await saveTasks();
-                renderTasks();
-
-                // Show confirmation message
-                let message = `Imported ${tasksToImport.length} tasks from Clarity7`;
-                if (completedCount > 0) {
-                    message += `. Moved ${completedCount} existing tasks to completed`;
-                }
-                if (importTasks.length > MAX_ACTIVE_TASKS) {
-                    message += ` (imported first ${MAX_ACTIVE_TASKS} of ${importTasks.length} tasks)`;
-                }
-                pomoTimer.showNotification(message);
-
-            } catch (error) {
-                console.error('Import failed:', error);
-                pomoTimer.showNotification('Failed to import from Clarity7. Please check the JSON format.');
-            }
-        }
-
 
         async function loadTasks() {
             try {
@@ -877,7 +509,7 @@
             const oneDayAgo = Date.now() - (1 * 24 * 60 * 60 * 1000);
             const originalLength = tasks.length;
             tasks = tasks.filter(task => !task.completed || !task.completedAt || task.completedAt > oneDayAgo);
-            
+
             // Only save if tasks were actually removed
             if (tasks.length !== originalLength) {
                 await saveTasks();
@@ -910,7 +542,7 @@
             const input = document.getElementById('taskInput');
             const text = input.value.trim();
             const activeTasks = tasks.filter(task => !task.completed);
-            
+
             if (text && activeTasks.length < MAX_ACTIVE_TASKS) {
                 tasks.push({
                     id: Date.now(),
@@ -980,7 +612,7 @@
 
             const completedSection = document.getElementById('completedSection');
             const completedContainer = document.getElementById('completedTasks');
-            
+
             if (completedTasks.length > 0) {
                 completedSection.style.display = 'block';
                 completedContainer.innerHTML = '';
@@ -1003,65 +635,35 @@
             }
         });
 
-        // Add paste event listener for Clarity7 import
-        document.getElementById('taskInput').addEventListener('paste', async (e) => {
-            setTimeout(async () => {
-                const pastedText = e.target.value;
-                if (detectClarity7JSON(pastedText)) {
-                    e.target.value = ''; // Clear the input
-                    await importFromClarity7(pastedText);
-                }
-            }, 0);
-        });
-
         setInterval(async () => {
             await cleanupExpiredTasks();
         }, 60 * 60 * 1000);
-        
+
         // Update theme color and status bar for system theme changes
         function updateThemeColor() {
             const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
+
             // Update theme-color meta tags
             const lightThemeMeta = document.querySelector('meta[name="theme-color"][media*="light"]');
             const darkThemeMeta = document.querySelector('meta[name="theme-color"][media*="dark"]');
-            
+
             if (lightThemeMeta) lightThemeMeta.setAttribute('content', '#ffffff');
             if (darkThemeMeta) darkThemeMeta.setAttribute('content', '#111827');
-            
+
             // Update Apple status bar style
             const lightStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"][media*="light"]');
             const darkStatusMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"][media*="dark"]');
-            
+
             if (lightStatusMeta) lightStatusMeta.setAttribute('content', 'default');
             if (darkStatusMeta) darkStatusMeta.setAttribute('content', 'black-translucent');
         }
 
         // Listen for system theme changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
-        
-        // Function to handle external links properly in PWA context
-        function openExternalLink(url) {
-            // Check if running as PWA (standalone mode)
-            const isPWA = window.matchMedia('(display-mode: standalone)').matches ||
-                         window.navigator.standalone ||
-                         document.referrer.includes('android-app://');
-            
-            if (isPWA) {
-                // In PWA mode, force external browser
-                window.location.href = url;
-            } else {
-                // In regular browser, open new tab
-                window.open(url, '_blank', 'noopener,noreferrer');
-            }
-        }
 
         // Initialize app
         loadTasks();
-        
-        // Initialize Pomodoro timer
-        pomoTimer = new MinimalPomodoroTimer();
-        
+
         // Set initial theme color
         updateThemeColor();
     </script>
